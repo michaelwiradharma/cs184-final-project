@@ -6,9 +6,9 @@ from mpl_toolkits import mplot3d
 from matplotlib.animation import FFMpegWriter
 from collections import defaultdict
 
-TIMESTEPS = 100
-PLOT_EVERY = 5
-NUM_PARTICLES_PER_DIMENSION = 10
+TIMESTEPS = 10
+PLOT_EVERY = 1
+NUM_PARTICLES_PER_DIMENSION = 8
 BOX_SIZE = 10        # Volume enclosing all the particles.
 NUM_BOXES = 100      # For hash map
 MASS = 10
@@ -20,12 +20,12 @@ GRAVITY = -9.8
 p0 = 1000     # Rest density
 delta_t = 0.01
 SPHERE_RADIUS = BOX_SIZE / 6
-SPHERE_CENTER = np.array([BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2])
+SPHERE_CENTER = np.array([BOX_SIZE / 2, BOX_SIZE / 2, 3 * BOX_SIZE / 8])
 
 # Freezing hyperparameters
 FREEZING_FRACTION = 0.1
 H_MAX = MASS              # Maximum virtual water film. Set to mass of liquid particle.
-FREEZING_THRESHOLD = 8
+FREEZING_THRESHOLD = 10
 
 particles = []
 solid_particles = []
@@ -40,7 +40,8 @@ def main():
                 pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
                                 (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
                                 (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION))])
-                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+                # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
                 particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
                 particles.append(particle)
                 liquid_particles.append(particle)
@@ -48,7 +49,8 @@ def main():
                 pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)) + 0.25,
                                 (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
                                 (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION))])
-                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+                # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
                 particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
                 particles.append(particle)
                 liquid_particles.append(particle)
@@ -56,7 +58,8 @@ def main():
                 pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
                                 (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)) + 0.25,
                                 (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION))])
-                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+                # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
                 particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
                 particles.append(particle)
                 liquid_particles.append(particle)
@@ -64,14 +67,15 @@ def main():
                 pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
                                 (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
                                 (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION)) + 0.25])
-                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+                # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
                 particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
                 particles.append(particle)
                 liquid_particles.append(particle)
 
     # Model solid sphere.
     rho = SPHERE_RADIUS - PARTICLE_RADIUS
-    vel = np.array([0, 0, 0])
+    vel = np.array([0.0, 0.0, 0.0])
     # Randomly generate 500 points on the solid sphere.
     for _ in range(500):
         phi = np.pi * random.uniform(0, 1)
@@ -220,7 +224,7 @@ def grad_W_spiky(r, h=1):
     right = (h - r_dist) ** 2
     return left * right * r / (r_dist + EPSILON)
   else:
-    return 0
+    return np.array([0.0, 0.0, 0.0])
 
 
 def handle_out_of_bounds():
@@ -394,13 +398,13 @@ def vorticity_viscosity_updates(ps):
     h = hash_position(p)
     # TODO: nbs = [other for other in nb_map[h] if p != other and not other.is_solid]?
     nbs = [other for other in nb_map[h] if p != other]
-    wi = np.array([0, 0, 0])
-    viscosity_sum = np.array([0, 0, 0])
+    wi = np.array([0.0, 0.0, 0.0])
+    viscosity_sum = np.array([0.0, 0.0, 0.0])
     for nb in nbs:
       vij = nb.vel - p.vel
       grad_pj = grad_W_spiky(p.pos - nb.pos)
       W_pij = W_poly(p.pos - nb.pos)
-      viscosity_sum += np.dot(vij, W_pij)
+      viscosity_sum += vij * W_pij
       wi += np.cross(vij, grad_pj)
     p.wi = wi
     # Viscosity term
@@ -409,11 +413,12 @@ def vorticity_viscosity_updates(ps):
   for p in ps:
     h = hash_position(p)
     nbs = [other for other in nb_map[h] if p != other]
-    grad_mag_wi = np.array([0, 0, 0])
+    grad_mag_wi = np.array([0.0, 0.0, 0.0])
     for nb in nbs:
       # Approximated grad||W|| from https://joshua16266261.github.io/184-water-sim/final-report/index.html
       diff_w = np.linalg.norm(nb.wi) - np.linalg.norm(p.wi)
       diff_p = nb.pos - p.pos
+      diff_p[diff_p == 0.0] = 1
       grad_mag_wi += diff_w / diff_p
 
     if np.linalg.norm(grad_mag_wi) != 0:
@@ -481,7 +486,7 @@ def simulate():
   solver(particles, iters=1)
 
   # TODO: vorticity and viscosity
-  # vorticity_viscosity_updates(particles)
+  vorticity_viscosity_updates(particles)
 
   virtual_mass_update(solid_particles)
   compute_growth_direction(solid_particles)
