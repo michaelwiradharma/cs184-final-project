@@ -54,7 +54,7 @@ class MarchingSquaresSolver:
         print(np.min(self.isolevels), np.max(self.isolevels))
 
     def polygonize(self):
-        isolevel = 30450372  # Ca tune
+        isolevel = 5  # Ca tune
         self.triangles = []
         for i in range(self.grid_dim):
             for j in range(self.grid_dim):
@@ -219,7 +219,7 @@ if __name__ == "__main__":
 
     # particles = np.random.rand(10000, 3) * 10
     # Generate particles that are at z = 0 but vary across x and y
-    particles = np.random.rand(100000, 3) / 10
+    particles = np.random.rand(10000, 3) / 10
 
     # Vary z from
     # particles[:, 2] = np.random.rand(100000) / 2
