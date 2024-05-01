@@ -61,6 +61,22 @@
     <h5>Viscosity</h5>
     <p>We also wanted to add viscosity as another property of our fluid simulation. This is to simulate the resistance to flow that liquids have. For this part of the simulation loop, we only need t update the velocity as follows:</p>
     <img src="./images/17.png"/>
+    <h4>Surface Reconstruction</h4>
+    <h5>Overview</h5>
+    <p>We started off by trying to use open source implementations of surface reconstruction, then trying to reimplement marching cubes, and we finally settled on using metaballs and Blender.</p>
+    <h5>Previous Work</h5>
+    <p>The three main surface reconstruction algorithms that previous teams used were marching cubes, metaballs and OpenVDB. We initially tried using OpenVDB, but we had trouble installing it as they had limited support for Python. So, we tried other methods as described below.</p>
+    <h5>Poisson Surface Reconstruction</h5>
+    <p>We did some research and found that there are many more robust surface reconstruction algorithms today. One of which is the Poisson surface reconstruction algorithm, which learns an implicit function for the surface by solving a Poisson problem. We tested out an open source implementation, but found that the reconstructed surface was sparse, and required a lot of hyperparameter tuning.</p>
+    <img src="./images/poisson_surface.png"/>
+
+    <h5>Marching Cubes</h5>
+    <p>Since marching cubes was a popular method used by previous teams, we decided to try it out. Whereas prior projects used an estimate for the isovalue like the smallest square distance, we use the more standard estimator - the density of the water within the voxel. We implemented this algorithm in Python, but found that the rendering time took too long, and tuning the hyperparameters was tough.</p>
+    <img src="./images/marching_cube.png"/>
+
+    <h5>Metaballs</h5>
+    <p>Lastly, we used Blender scripting to generate our meshes and found that this worked well. We modeled each particle as a metaball and we tuned its size and strength - how large each ball is and how much it blends with neighboring balls. We created a modular Python script to automate the rendering of any num_timesteps x num_particles x 4 array, where the 3rd dimension stores the particle’s xyz coordinates and whether it is ice or water. Blender then automatically meshes neighboring metaballs together to create a continuous surface.</p>
+    <img src="./images/metaball.png"/>
     <h2>Results</h2>
     <h2>Reflection</h2>
     <p>One of the lessons we learned and a challenge we faced was from converting the point cloud to a mesh. Although the previous projects mostly chose marching cubes and without too much justification, we learned that this choice does not necessarily make the most sense and a lot of developers online believe marching cubes is ill suited for point clouds. We also realized that generating realistic meshes from the point cloud requires a lot of hyperparameter tuning no matter the method – whether that be dictating the isovalue or the size and influence of metaballs. Overall, we figured out that it’s important to figure out why you approach a problem in a specific way, and that although there are a lot of graphics techniques, actually applying them and achieving good results can be non-trivial.</p>
