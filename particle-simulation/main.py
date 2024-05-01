@@ -6,26 +6,27 @@ from mpl_toolkits import mplot3d
 from matplotlib.animation import FFMpegWriter
 from collections import defaultdict
 
-TIMESTEPS = 10
-PLOT_EVERY = 1
-NUM_PARTICLES_PER_DIMENSION = 8
+TIMESTEPS = 100
+PLOT_EVERY = 5
+NUM_PARTICLES_PER_DIMENSION = 5
 BOX_SIZE = 10        # Volume enclosing all the particles.
 NUM_BOXES = 100      # For hash map
 MASS = 10
 PARTICLE_RADIUS = 0.05
+# PARTICLE_RADIUS = 0.20
 RELAXATION = 100     # Relaxation parameter
 EPSILON = 1e-6
-DAMPING_COEFF = 0.1
+DAMPING_COEFF = 0.7
 GRAVITY = -9.8
 p0 = 1000     # Rest density
 delta_t = 0.01
 SPHERE_RADIUS = BOX_SIZE / 6
-SPHERE_CENTER = np.array([BOX_SIZE / 2, BOX_SIZE / 2, 3 * BOX_SIZE / 8])
+SPHERE_CENTER = np.array([BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 4])
 
 # Freezing hyperparameters
 FREEZING_FRACTION = 0.1
 H_MAX = MASS              # Maximum virtual water film. Set to mass of liquid particle.
-FREEZING_THRESHOLD = 10
+FREEZING_THRESHOLD = 0
 
 particles = []
 solid_particles = []
@@ -34,45 +35,80 @@ nb_map = defaultdict(list)
 
 def main():
     # Create liquid particles.
-    for i in range(NUM_PARTICLES_PER_DIMENSION):
-        for j in range(NUM_PARTICLES_PER_DIMENSION):
-            for k in range(NUM_PARTICLES_PER_DIMENSION):
-                pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
-                                (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
-                                (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION))])
-                # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
-                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
-                particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
-                particles.append(particle)
-                liquid_particles.append(particle)
+    # for i in range(NUM_PARTICLES_PER_DIMENSION):
+    #     for j in range(NUM_PARTICLES_PER_DIMENSION):
+    #         for k in range(NUM_PARTICLES_PER_DIMENSION):
+    #             pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
+    #                             (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
+    #                             (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION))])
+    #             vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+    #             # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
+    #             particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
+    #             particles.append(particle)
+    #             liquid_particles.append(particle)
 
-                pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)) + 0.25,
-                                (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
-                                (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION))])
-                # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
-                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
-                particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
-                particles.append(particle)
-                liquid_particles.append(particle)
+    #             pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)) + 0.50,
+    #                             (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
+    #                             (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION))])
+    #             vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+    #             # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
+    #             particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
+    #             particles.append(particle)
+    #             liquid_particles.append(particle)
 
-                pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
-                                (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)) + 0.25,
-                                (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION))])
-                # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
-                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
-                particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
-                particles.append(particle)
-                liquid_particles.append(particle)
+    #             pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
+    #                             (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)) + 0.50,
+    #                             (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION))])
+    #             vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+    #             # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
+    #             particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
+    #             particles.append(particle)
+    #             liquid_particles.append(particle)
 
-                pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
-                                (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
-                                (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION)) + 0.25])
-                # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
-                vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
-                particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
-                particles.append(particle)
-                liquid_particles.append(particle)
+    #             pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
+    #                             (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
+    #                             (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION)) + 0.25])
+    #             vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), -10.0])
+    #             # vel = np.array([random.uniform(-1, 1), random.uniform(-1, 1), 0.0])
+    #             particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
+    #             particles.append(particle)
+    #             liquid_particles.append(particle)
 
+    num_particles = 50
+    rho = BOX_SIZE / 8
+    for t in range(num_particles):
+      theta = (t / num_particles) * 4 * np.pi + 0.1
+      z = (BOX_SIZE / 2) + (BOX_SIZE * (t / (2 * num_particles))) - 0.75
+      pos = np.array([(BOX_SIZE / 2) + rho * np.cos(theta), (BOX_SIZE / 2) +  rho * np.sin(theta), z])
+      vel = np.array([0, 0, -10.0])
+      particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
+      particles.append(particle)
+      liquid_particles.append(particle)
+
+      theta = (t / num_particles) * 4 * np.pi + 0.2
+      z = (BOX_SIZE / 2) + (BOX_SIZE * (t / (2 * num_particles))) - 0.50
+      pos = np.array([(BOX_SIZE / 2) + rho * np.cos(theta), (BOX_SIZE / 2) +  rho * np.sin(theta), z])
+      vel = np.array([0, 0, -10.0])
+      particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
+      particles.append(particle)
+      liquid_particles.append(particle)
+
+      theta = (t / num_particles) * 4 * np.pi + 0.3
+      z = (BOX_SIZE / 2) + (BOX_SIZE * (t / (2 * num_particles))) - 0.25
+      pos = np.array([(BOX_SIZE / 2) + rho * np.cos(theta), (BOX_SIZE / 2) +  rho * np.sin(theta), z])
+      vel = np.array([0, 0, -10.0])
+      particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
+      particles.append(particle)
+      liquid_particles.append(particle)
+
+      theta = (t / num_particles) * 4 * np.pi
+      z = (BOX_SIZE / 2) + (BOX_SIZE * (t / (2 * num_particles)))
+      pos = np.array([(BOX_SIZE / 2) + rho * np.cos(theta), (BOX_SIZE / 2) +  rho * np.sin(theta), z])
+      vel = np.array([0, 0, -10.0])
+      particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=False)
+      particles.append(particle)
+      liquid_particles.append(particle)
+      
     # Model solid sphere.
     rho = SPHERE_RADIUS - PARTICLE_RADIUS
     vel = np.array([0.0, 0.0, 0.0])
@@ -87,6 +123,22 @@ def main():
         particles.append(particle)
         solid_particles.append(particle)
 
+    # Generate cube
+    # Generate flat surface
+    # for i in range(20):
+    #   for j in range(20):
+    #     pos = np.array([i * (BOX_SIZE / 20), j * (BOX_SIZE / 20), 0])
+    #     particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=True)
+    #     particles.append(particle)
+    #     solid_particles.append(particle)
+    # for _ in range(400):
+    #     pos = np.array([(BOX_SIZE / 4) + i * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
+    #                     (BOX_SIZE / 4) + j * (BOX_SIZE / (2 * NUM_PARTICLES_PER_DIMENSION)),
+    #                     (3 * BOX_SIZE / 4) + k * (BOX_SIZE / (8 * NUM_PARTICLES_PER_DIMENSION)) + 0.25])
+    #     particle = Particle(pos, vel, radius=PARTICLE_RADIUS, is_solid=True)
+    #     particles.append(particle)
+    #     solid_particles.append(particle)
+
     # for phi in np.linspace(0, np.pi, 20):
     #   for theta in np.linspace(0, 2 * np.pi, 20):
     #     pos = np.array([(BOX_SIZE / 2) + rho * np.sin(phi) * np.cos(theta),
@@ -97,7 +149,7 @@ def main():
     # Visualization tools are based on FLIPing Fluids (Sp23 Project).
     metadata = dict(title="Position Based Fluids", artist="matlib", comment='')
     writer = FFMpegWriter(fps=15, metadata=metadata)
-    filename = f"simulation_{TIMESTEPS}_{NUM_PARTICLES_PER_DIMENSION}.mp4"
+    filename = f"simulations/simulation_flat_{TIMESTEPS}_{NUM_PARTICLES_PER_DIMENSION}.mp4"
     plt.style.use("dark_background")
     fig = plt.figure()
 
@@ -158,7 +210,7 @@ def main():
 
                 point_cloud[t // PLOT_EVERY] = np.concatenate((positions, states), axis=1)
 
-    np.save(f'point_cloud_{TIMESTEPS}_{NUM_PARTICLES_PER_DIMENSION}.npy', point_cloud)
+    np.save(f'point_cloud/point_cloud_flat_{TIMESTEPS}_{NUM_PARTICLES_PER_DIMENSION}.npy', point_cloud)
 
 
 class Particle:
@@ -297,29 +349,19 @@ def ray_sphere_intersection(o, d, C, R):
 #     # TODO: Modify l's velocity.
 #   return
 
-
-def sphere_liquid_collision(c, r, p):
-  # c: sphere center, r: sphere radius, p: liquid particle
-  o = p.prev_pos
-  d = p.pos - p.prev_pos
+def solid_liquid_collision(s, l):
+  # s: solid particle, l: liquid particle
+  o = l.prev_pos
+  d = l.pos - l.prev_pos
   d = d / (np.linalg.norm(d) + EPSILON)
-  t = ray_sphere_intersection(o, d, c, r)
+  C = s.pos
+  R = s.radius
+  t = ray_sphere_intersection(o, d, C, R)
   if t:
-    p.pos = o + (t * d)  # Where particle's trajectory first intersects sphere.
-    normal = p.pos - c
-    normal /= np.linalg.norm(normal)
-    incident = p.vel
-    outward = incident - (2 * np.dot(incident, normal) * normal)
-    p.vel = DAMPING_COEFF * outward
-
-  # Enforce that particles are not inside the solid sphere.
-  offset = p.pos - c
-  distance = np.linalg.norm(offset)
-  if distance < r:
-    offset /= distance
-    p.pos = c + (offset * (r + PARTICLE_RADIUS))
+    l.pos = o + (t - s.radius) * d
+    l.vel *= -DAMPING_COEFF
+    # TODO: Modify l's velocity.
   return
-
 
 def liquid_liquid_collision(p_i, p_j):
   dir = p_i.pos - p_j.pos
@@ -330,21 +372,66 @@ def liquid_liquid_collision(p_i, p_j):
     p_j.pos -= dir * (2 * p_i.radius - length) / 2
     # TODO: Modify particles' velocities.
 
-
 def handle_particle_collisions():
   for hash in nb_map:
     for p_i in nb_map[hash]:
-      if p_i.is_solid:
-        continue
       for p_j in nb_map[hash]:
-        if p_j.is_solid:
-          continue
-        liquid_liquid_collision(p_i, p_j)
-        # elif (p_i.is_solid and not p_j.is_solid):
-        #   solid_liquid_collision(p_i, p_j)
-        # elif (not p_i.is_solid and p_j.is_solid):
-        #   solid_liquid_collision(p_j, p_i)
+        if (not p_i.is_solid and not p_j.is_solid):
+          liquid_liquid_collision(p_i, p_j)
+        elif (p_i.is_solid and not p_j.is_solid):
+          solid_liquid_collision(p_i, p_j)
+        elif (not p_i.is_solid and p_j.is_solid):
+          solid_liquid_collision(p_j, p_i)
   return
+
+
+# def sphere_liquid_collision(c, r, p):
+#   # c: sphere center, r: sphere radius, p: liquid particle
+#   o = p.prev_pos
+#   d = p.pos - p.prev_pos
+#   d = d / (np.linalg.norm(d) + EPSILON)
+#   t = ray_sphere_intersection(o, d, c, r)
+#   if t:
+#     p.pos = o + (t * d)  # Where particle's trajectory first intersects sphere.
+#     normal = p.pos - c
+#     normal /= np.linalg.norm(normal)
+#     incident = p.vel
+#     outward = incident - (2 * np.dot(incident, normal) * normal)
+#     p.vel = DAMPING_COEFF * outward
+
+#   # Enforce that particles are not inside the solid sphere.
+#   offset = p.pos - c
+#   distance = np.linalg.norm(offset)
+#   if distance < r:
+#     offset /= distance
+#     p.pos = c + (offset * (r + PARTICLE_RADIUS))
+#   return
+
+
+# def liquid_liquid_collision(p_i, p_j):
+#   dir = p_i.pos - p_j.pos
+#   length = np.linalg.norm(dir)
+#   if (p_i != p_j) and (length < 2 * p_i.radius):
+#     dir /= (length + EPSILON)
+#     p_i.pos += dir * (2 * p_i.radius - length) / 2
+#     p_j.pos -= dir * (2 * p_i.radius - length) / 2
+#     # TODO: Modify particles' velocities.
+
+
+# def handle_particle_collisions():
+#   for hash in nb_map:
+#     for p_i in nb_map[hash]:
+#       if p_i.is_solid:
+#         continue
+#       for p_j in nb_map[hash]:
+#         if p_j.is_solid:
+#           continue
+#         liquid_liquid_collision(p_i, p_j)
+#         # elif (p_i.is_solid and not p_j.is_solid):
+#         #   solid_liquid_collision(p_i, p_j)
+#         # elif (not p_i.is_solid and p_j.is_solid):
+#         #   solid_liquid_collision(p_j, p_i)
+#   return
 
 
 # lines 8-19 of pbf paper
@@ -385,9 +472,9 @@ def solver(ps, iters=1):
         p.pos += p.delta_pi
         p.vel = (p.pos - p.prev_pos) / delta_t
 
-    for p in ps:
-      if not p.is_solid:
-        sphere_liquid_collision(SPHERE_CENTER, SPHERE_RADIUS, p)
+    # for p in ps:
+    #   if not p.is_solid:
+    #     sphere_liquid_collision(SPHERE_CENTER, SPHERE_RADIUS, p)
     handle_particle_collisions()
     handle_out_of_bounds()
     return
