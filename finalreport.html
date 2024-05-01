@@ -12,6 +12,10 @@
 <body>
     <div class="container mt-5">
         <h1>Group 12. Final Project - Super Cool Fluids</h1>
+        <p>Slide: <a href="https://docs.google.com/presentation/d/1PxXpK4AlvXQrmada6wkpNvDflN6MHHidt7EFtmtDV_s/edit?usp=sharing">Google Slides</a> | Code: <a href="https://github.com/michaelwiradharma/cs184-final-project">Github</a> | Final Presentation:
+            <a href="https://drive.google.com/file/d/1o9L0Yg9SD4VZt8wbw-RkBr5Pfb0qb3Fh/view?usp=sharing">Google
+                Drive</a>
+        </p>
         <h2>Abstract</h2>
         <p>In this project, we implemented a particle-based fluid simulator with freezing effects, and rendered our simulation in Blender. We based our fluid dynamics off the Position Based Fluids paper, modeling the interactions between individual liquid
             particles. Then, we give our fluid supercool properties, such that it freezes instantly when in contact with a cold surface. In order to render the results, we exported our simulation as a point cloud, turned it into a mesh, and added realistic
@@ -114,15 +118,17 @@
             together to create a continuous surface.</p>
         <img src="./images/metaball.png" />
         <h2>Results</h2>
-        <video controls width=480>
-            <source src="images/final_video_cube_opticalslow.mp4" type="video/mp4">
-        </video>
-        <video controls width=480>
-            <source src="images/final_video_flat_opticalslow.mp4" type="video/mp4">
-        </video>
-        <video controls width=480>
-            <source src="images/final_video_v4_opticalslow.mp4" type="video/mp4">
-        </video>
+        <div class="container flex justify-content">
+            <video controls width=480>
+                <source src="images/final_video_cube_opticalslow.mp4" type="video/mp4">
+            </video>
+            <video controls width=480>
+                <source src="images/final_video_flat_opticalslow.mp4" type="video/mp4">
+            </video>
+            <video controls width=480>
+                <source src="images/final_video_v4_opticalslow.mp4" type="video/mp4">
+            </video>
+        </div>
         <h2>Reflection</h2>
         <p>One of the lessons we learned and a challenge we faced was from converting the point cloud to a mesh. Although the previous projects mostly chose marching cubes and without too much justification, we learned that this choice does not necessarily
             make the most sense and a lot of developers online believe marching cubes is ill suited for point clouds. We also realized that generating realistic meshes from the point cloud requires a lot of hyperparameter tuning no matter the method –
@@ -152,16 +158,32 @@
             <li><a href="https://drive.google.com/file/d/1Az9bYgnyBDzy27JlxBcpt9tEBCvZhK-A/view?usp=share_link">CUDA
                     accelerated fluid sim</a></li>
         </ol>
+        <h2>Video Presentation</h2>
+        <p>This is the same video as linked at the top of the page</p>
+        <video controls width=720>
+            <source src="images/final_presentation.mp4" type="video/mp4">
+        </video>
         <h2>Contributions</h2>
-        <p>Charlie Shou: I worked on setting up the particle simulation code and implementing the base of the simulation loop from the Position Based Fluids paper. This includes applying the forces to each particle, finding the approximate nearest neighbors
+        <<<<<<< HEAD <p>Charlie Shou: I worked on setting up the particle simulation code and implementing the base of the simulation loop from the Position Based Fluids paper. This includes applying the forces to each particle, finding the approximate nearest neighbors
             for each particle (done through position hashing), and performing the calculations for the gradients, forces, and position updates within the solver step. Additionally, I implemented the vorticity and viscosity updates for the particles. For
             all of the above, I also helped in debugging and tuning the hyperparameters.</p>
-        <p>Jin Wei Wong: I mostly worked on implementing the freezing portion of the fluid simulation. This involved implementing ideas from the freezing paper, and making fundamental modifications to the codebase such as modeling solid particles and calculating
-            when a water particle turns into ice. I also helped out with converting our point cloud into metaballs and rendering it in Blender.</p>
-        <p>Sebastian Zhao: I worked on the point cloud to mesh portion. I worked with Michael to look into different surface reconstruction algorithms, and tested out a Poisson surface reconstruction algorithm, as well as implementing a Marching Cubes algorithm.
-            I also worked on a blender python script to create metaballs for our particles and tuned the hyperparameters for our final render.</p>
-        <p>Michael Wiradharma: I worked with Sebastian on the last two portions of the pipeline, working on restructuring particles into meshes, and figuring out how to realistically render ice and water. I figured out the textures and how to import all
-            the meshes as ‘.obj’ files and render them into the final video.</p>
+            <p>Jin Wei Wong: I mostly worked on implementing the freezing portion of the fluid simulation. This involved implementing ideas from the freezing paper, and making fundamental modifications to the codebase such as modeling solid particles and
+                calculating when a water particle turns into ice. I also helped out with converting our point cloud into metaballs and rendering it in Blender.</p>
+            <p>Sebastian Zhao: I worked on the point cloud to mesh portion. I worked with Michael to look into different surface reconstruction algorithms, and tested out a Poisson surface reconstruction algorithm, as well as implementing a Marching Cubes
+                algorithm. I also worked on a blender python script to create metaballs for our particles and tuned the hyperparameters for our final render.</p>
+            <p>Michael Wiradharma: I worked with Sebastian on the last two portions of the pipeline, working on restructuring particles into meshes, and figuring out how to realistically render ice and water. I figured out the textures and how to import
+                all the meshes as ‘.obj’ files and render them into the final video.</p>
+            =======
+            <p>Charlie Shou: I worked on setting up the particle simulation code and implementing the base of the simulation loop from the Position Based Fluids paper. This includes applying the forces to each particle, finding the approximate nearest neighbors
+                for each particle (done through position hashing), and performing the calculations for the gradients, forces, and position updates within the solver step. Additionally, I implemented the vorticity and viscosity updates for the particles.
+                For all of the above, I also helped in debugging and tuning the hyperparameters.</p>
+            <p>Jin Wei Wong: I mostly worked on implementing the freezing portion of the fluid simulation. This involved implementing ideas from the freezing paper, and making fundamental modifications to the codebase such as modeling solid particles and
+                calculating when a water particle turns into ice. I also helped out with converting our point cloud into metaballs and rendering it in Blender.</p>
+            <p>Sebastian Zhao: I worked on the point cloud to mesh portion. I worked with Michael to look into different surface reconstruction algorithms, and tested out a Poisson surface reconstruction algorithm, as well as implementing a Marching Cubes
+                algorithm. I also worked on a blender python script to create metaballs for our particles and tuned the hyperparameters for our final render.</p>
+            <p>Michael Wiradharma: I worked with Sebastian on the last two portions of the pipeline, working on restructuring particles into meshes, and figuring out how to realistically render ice and water. I figured out how to import the series of ‘.obj’
+                files and convert them into blender meshes. Lastly, I replicated the surface textures of water, ice, and metallic solids, and rendered them into the final video.</p>
+            >>>>>>> 5202cba07f73dae98efce05d48b756bf455c6841
     </div>
 </body>
 
