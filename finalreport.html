@@ -6,7 +6,53 @@
     <title>CS 184: Final Project Report</title>
 </head>
 <body>
-    Group 12.
-    Final Project
+    <h1>Group 12.</h1>
+    <h1>Final Project</h1>
+    <h2>Technical Approach</h2>
+    <h3>Particle Simulation</h3>
+    <h4>Overview</h4>
+    <p>This project relied heavily on having realistic and physically accurate fluid simulation. For this part of the project, we primarily based our work off the <a href="https://drive.google.com/file/d/1i0Sx4n7Ky78JfZeJhx-OnpmAOw83s_wF/view">Position Based Fluids</a> paper from Macklin and Muller. Then, we referenced the <a href="https://drive.google.com/file/d/1Az9bYgnyBDzy27JlxBcpt9tEBCvZhK-A/view">Visual Stimulation of Rapidly Freezing Water based on Crystallization</a> paper for freezing.</p>
+    <h4>Previous Work</h4>
+    <p>We were initially inspired by <a href="https://cal-cs184-student.github.io/project-webpages-sp23-CardiacMangoes/finalProject/">FLIPing Fluids</a>, a Sp23 team, to use the Fluid Implicit Particle (FLIP) solver due to its high algorithmic efficiency. However, this method did not model individual particles, it modeled an aggregate of particles within each voxel. Since our end goal was to model water freezing, we pivoted to using Position Based Fluids to model individual water particles. As far as we know, we are the first team to implement freezing water in this class. We also couldn’t find any public repositories on this, which made implementing it novel and challenging.</p>
+    <h4>Position Based Fluids</h4>
+    <p>In order to implement our main fluid simulation, we followed the algorithms outlined in the Position Based Fluids paper. For this part of the project, we modeled each particle of water in a Particle class that stored information on the position, velocity, and any important variables about each particle that needs to be tracked. After initializing our scene, which involved setting up the boundaries of our simulation and setting the initial values for our particles, we followed the simulation loop outlined in the paper. This involved enforcing a set of constraints and applying forces that mimic fluid behavior.
+    </p>
+    <h5>Setup</h5>
+    <p>The first step of the loop involved applying our external forces. For this project, our only external force acting on our water particles is gravity. To actually continue with our solver step, we had to find the neighbors for each particle. In order to do this, we used a similar technique to what we did for our cloth sim project. We built out a spatial map where each key was a boundary within the bounding boxes that we defined and the values were the particles that were in the bounding box. So if we wanted to get the neighbors of a particle, we would hash its position and query the mapping.
+    </p>
+    <h5>Incompressibility</h5>
+    <p>For the solver loop, the first constraint that we needed to enforce was incompressibility. Conceptually, this means that the density of particles within a flow of particles is constant throughout time. Since we can only simulate a finite number of particles, the solution to this is only an approximation. According to the paper, the SPH density estimator for particle i and neighbors particles j is defined as:
+    </p>
+    <img src="./images/1.png"/>
+    <p>where mj is the mass of each water particles and W is defined as the Poly6 kernel:</p>
+    <img src="./images/2.png"/>
+    <img src="./images/3.png"/>
+    <p>This is used along with the rest density p0 to calculate the incompressibility constraint Ci:</p>
+    <img src="./images/4.png"/>
+    <p>In order to calculate the variables we need to find the position updates that allow us to enforce incompressibility, we also need to calculate the gradient of Ci for all particles i. According to the paper, this is given by:</p>
+    <img src="./images/5.png"/>
+    <p>Here, instead of the Poly6 kernel function, we use the gradient of the Spiky kernel as defined by:</p>
+    <img src="./images/6.png"/>
+    <p>This combined with the above equations is used to calculate lambda values for each particle i:</p>
+    <img src="./images/7.png"/>
+    <p>One issue with this is the value is unstable if the denominator is zero or close to zero, so we also add a relaxation constant epsilon to adjust for this:</p>
+    <img src="./images/8.png"/>
+    <p>After calculating this value for all of the particles, we can calculate the positional update for each particle as the following with neighbors j:</p>
+    <img src="./images/9.png"/>
+    <p>This update is then applied to the position attribute for each of the particles to adjust for our incompressibility constraint. This alone, however, causes particles to clump when there are no neighbors around them. As a result, we also want to add an artificial pressure term when we calculate the positional update:</p>
+    <img src="./images/10.png"/>
+    <img src="./images/11.png"/>
+    <h5>Vorticity Confinement</h5>
+    <p>We also want to apply a vorticity force to make the water simulation more realistic, applying a force to allow for fluid rotation. First, we calculate an estimator wi as follows:</p>
+    <img src="./images/12.png"/>
+    <img src="./images/13.png"/>
+    <p>Using this, the force applied to particle i is as follows:</p>
+    <img src="./images/14.png"/>
+    <img src="./images/15.png"/>
+    <img src="./images/16.png"/>
+    <p>Where the gradient of the magnitude of wi is approximated as the following (according to a <a href="https://joshua16266261.github.io/184-water-sim/final-report/index.html">past project</a> from this class)</p>
+    <h5>Viscosity</h5>
+    <p>We also wanted to add viscosity as another property of our fluid simulation. This is to simulate the resistance to flow that liquids have. For this part of the simulation loop, we only need t update the velocity as follows:</p>
+    <img src="./images/17.png"/>
 </body>
 </html>
