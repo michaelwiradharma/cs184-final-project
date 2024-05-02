@@ -16,6 +16,19 @@
             margin-right: 300px;
         }
     </style>
+
+    <style>
+        .rounded-image {
+            border-radius: 20px;
+            overflow: hidden;
+        }
+    </style>
+    <style>
+        .rounded-video {
+            border-radius: 20px;
+            overflow: hidden;
+        }
+    </style>
 </head>
 
 <body>
@@ -25,7 +38,7 @@
         <p align="middle"><a href="https://docs.google.com/presentation/d/1PxXpK4AlvXQrmada6wkpNvDflN6MHHidt7EFtmtDV_s/edit?usp=sharing">Slides</a> | <a href="https://github.com/michaelwiradharma/cs184-final-project">Code</a> | <a href="https://drive.google.com/file/d/1o9L0Yg9SD4VZt8wbw-RkBr5Pfb0qb3Fh/view?usp=sharing">Final Presentation</a>
         </p>
         <div align="middle">
-            <img src="images/result-sphere.gif" align="middle" width="500px">
+            <img src="images/result-sphere.gif" align="middle" border="1px solid black" width="500px" class="rounded-image">
         </div>
 
         <br>
@@ -117,14 +130,14 @@
         <p>We did some research and found that there are many more robust surface reconstruction algorithms today. One of which is the Poisson surface reconstruction algorithm, which learns an implicit function for the surface by solving a Poisson problem.
             We tested out an open source implementation, but found that the reconstructed surface was sparse, and required a lot of hyperparameter tuning.</p>
         <div align="middle">
-            <img src="./images/poisson_surface.png" width="200px" border="1px solid black" />
+            <img src="./images/poisson_surface.png" width="200px" border="1px solid black" class="rounded-image" />
         </div>
 
         <h5>Marching Cubes</h5>
         <p>Since marching cubes was a popular method used by previous teams, we decided to try it out. Whereas prior projects used an estimate for the isovalue like the smallest square distance, we use the more standard estimator - the density of the water
             within the voxel. We implemented this algorithm in Python, but found that the rendering time took too long, and tuning the hyperparameters was tough.</p>
         <div align="middle">
-            <img src="./images/marching_cube.png" width="200px" border="1px solid black" />
+            <img src="./images/marching_cube.png" width="200px" border="1px solid black" class="rounded-image" />
         </div>
 
         <h5>Metaballs</h5>
@@ -132,7 +145,7 @@
             a modular Python script to automate the rendering of any num_timesteps x num_particles x 4 array, where the 3rd dimension stores the particle’s xyz coordinates and whether it is ice or water. Blender then automatically meshes neighboring metaballs
             together to create a continuous surface.</p>
         <div align="middle">
-            <img src="./images/metaball.png" width="200px" border="1px solid black" />
+            <img src="./images/metaball.png" width="200px" border="1px solid black" class="rounded-image" />
         </div>
         <br>
         <h2>Results</h2>
@@ -142,7 +155,7 @@
                     <tr align="center">
                         <td>
                             <div align="middle">
-                                <img src="images/result-sphere.gif" align="middle" width="600px">
+                                <img src="images/result-sphere.gif" align="middle" border="1px solid black" width="600px" class="rounded-image">
                             </div>
                             <figcaption>Ice forming on a sphere</figcaption>
                         </td>
@@ -150,7 +163,7 @@
                     <tr align="center">
                         <td>
                             <div align="middle">
-                                <img src="images/result-cube.gif" align="middle" width="600px">
+                                <img src="images/result-cube.gif" align="middle" border="1px solid black" width="600px" class="rounded-image">
                             </div>
                             <figcaption>Ice forming on a cube</figcaption>
                         </td>
@@ -158,7 +171,7 @@
                     <tr align="center">
                         <td>
                             <div align="middle">
-                                <img src="images/result-flat.gif" align="middle" width="600px">
+                                <img src="images/result-flat.gif" align="middle" border="1px solid black" width="600px" class="rounded-image">
                             </div>
                             <figcaption>Ice forming on a flat surface</figcaption>
                         </td>
@@ -200,7 +213,7 @@
         <p>This is the same video as linked at the top of the page.</p>
         <div align="middle">
             <div class="container flex justify-content">
-                <video controls width=800>
+                <video controls width=800 class="rounded-video">
                     <source src="images/final_presentation.mp4" type="video/mp4">
                 </video>
             </div>
