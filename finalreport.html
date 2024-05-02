@@ -9,22 +9,25 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            margin-left: 300px;
+            margin-right: 300px;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container mt-5">
-        <h1>Group 12. Final Project - Super Cool Fluids</h1>
-        <p>Slide: <a href="https://docs.google.com/presentation/d/1PxXpK4AlvXQrmada6wkpNvDflN6MHHidt7EFtmtDV_s/edit?usp=sharing">Google Slides</a> | Code: <a href="https://github.com/michaelwiradharma/cs184-final-project">Github</a> | Final Presentation:
-            <a href="https://drive.google.com/file/d/1o9L0Yg9SD4VZt8wbw-RkBr5Pfb0qb3Fh/view?usp=sharing">Google
-                Drive</a>
+        <h1 align="middle">Group 12. Final Project - Super Cool Fluids</h1>
+        <h5 align="middle">Charlie Shou, Sebastian Zhao, Jin Wei Wong, Michael Wiradharma</h5>
+        <p align="middle"><a href="https://docs.google.com/presentation/d/1PxXpK4AlvXQrmada6wkpNvDflN6MHHidt7EFtmtDV_s/edit?usp=sharing">Slides</a> | <a href="https://github.com/michaelwiradharma/cs184-final-project">Code</a> | <a href="https://drive.google.com/file/d/1o9L0Yg9SD4VZt8wbw-RkBr5Pfb0qb3Fh/view?usp=sharing">Final Presentation</a>
         </p>
         <div align="middle">
-            <div class="container flex justify-content">
-                <video controls width=800>
-                            <source src="images/final_video_v4_opticalslow.mp4" type="video/mp4">
-                        </video>
-            </div>
+            <img src="images/result-sphere.gif" align="middle" width="500px">
         </div>
+
         <br>
         <h2>Abstract</h2>
         <p>In this project, we implemented a particle-based fluid simulator with freezing effects, and rendered our simulation in Blender. We based our fluid dynamics off the Position Based Fluids paper, modeling the interactions between individual liquid
@@ -41,27 +44,27 @@
             </li>
         </ol>
         <br>
-        <h3>Particle Simulation</h3>
-        <h4>Overview</h4>
+        <h4>Particle Simulation</h4>
+        <h5>Overview</h5>
         <p>This project relied heavily on having realistic and physically accurate fluid simulation. For this part of the project, we primarily based our work off the <a href="https://drive.google.com/file/d/1i0Sx4n7Ky78JfZeJhx-OnpmAOw83s_wF/view">Position Based Fluids</a>            paper from Macklin and Muller. Then, we referenced the <a href="https://drive.google.com/file/d/1Az9bYgnyBDzy27JlxBcpt9tEBCvZhK-A/view">Visual Stimulation of
                 Rapidly
                 Freezing Water based on Crystallization</a> paper for freezing.</p>
-        <h4>Previous Work</h4>
+        <h5>Previous Work</h5>
         <p>We were initially inspired by <a href="https://cal-cs184-student.github.io/project-webpages-sp23-CardiacMangoes/finalProject/">FLIPing
                 Fluids</a>, a Sp23 team, to use the Fluid Implicit Particle (FLIP) solver due to its high algorithmic efficiency. However, this method did not model individual particles, it modeled an aggregate of particles within each voxel. Since our
             end goal was to model water freezing, we pivoted to using Position Based Fluids to model individual water particles. As far as we know, we are the first team to implement freezing water in this class. We also couldn’t find any public repositories
             on this, which made implementing it novel and challenging.</p>
-        <h4>Position Based Fluids</h4>
+        <h5>Position Based Fluids</h5>
         <p>In order to implement our main fluid simulation, we followed the algorithms outlined in the Position Based Fluids paper. For this part of the project, we modeled each particle of water in a Particle class that stored information on the position,
             velocity, and any important variables about each particle that needs to be tracked. After initializing our scene, which involved setting up the boundaries of our simulation and setting the initial values for our particles, we followed the
             simulation loop outlined in the paper. This involved enforcing a set of constraints and applying forces that mimic fluid behavior.
         </p>
-        <h5>Setup</h5>
+        <h6>Setup</h6>
         <p>The first step of the loop involved applying our external forces. For this project, our only external force acting on our water particles is gravity. To actually continue with our solver step, we had to find the neighbors for each particle. In
             order to do this, we used a similar technique to what we did for our cloth sim project. We built out a spatial map where each key was a boundary within the bounding boxes that we defined and the values were the particles that were in the bounding
             box. So if we wanted to get the neighbors of a particle, we would hash its position and query the mapping.
         </p>
-        <h5>Incompressibility</h5>
+        <h6>Incompressibility</h6>
         <p>For the solver loop, the first constraint that we needed to enforce was incompressibility. Conceptually, this means that the density of particles within a flow of particles is constant throughout time. Since we can only simulate a finite number
             of particles, the solution to this is only an approximation. According to the paper, the SPH density estimator for particle \(i\) and neighbors particles \(j\) is defined as:
         </p>
@@ -83,138 +86,136 @@
         <p>This update is then applied to the position attribute for each of the particles to adjust for our incompressibility constraint. This alone, however, causes particles to clump when there are no neighbors around them. As a result, we also want to
             add an artificial pressure term when we calculate the positional update:</p>
         \[\Delta \mathbf{p}_i = \frac{1}{\rho_0} \sum_{j} (\lambda_i + \lambda_j + s_{\text{corr}}) \nabla W(\mathbf{p}_i - \mathbf{p}_j, h), \quad \quad s_{\text{corr}} = -k\left(\frac{W(\mathbf{p}_i - \mathbf{p}_j, h)}{W(\Delta \mathbf{q}, h)} \right)^n \]
-        <h5>Vorticity Confinement</h5>
-        <p>We also want to apply a vorticity force to make the water simulation more realistic, applying a force to allow for fluid rotation. First, we calculate an estimator \(\omega_i\) as follows:</p>
-        \[ \omega_i = \nabla \times \mathbf{v} = \sum_{j} \mathbf{v}_{ij} \times \nabla_{\mathbf{p}_j} W(\mathbf{p}_i - \mathbf{p}_j, h), \quad \quad \mathbf{v}_{ij} = \mathbf{v}_j - \mathbf{v}_i \]
-        <p>Using this, the force applied to particle \(i\) is as follows:</p>
-        \[\mathbf{f}^{\text{vorticity}}_{i} = \epsilon(\mathbf{N} \times \omega_i), \quad \quad \mathbf{N} = \frac{\eta}{|\eta|}, \quad \quad \eta = \nabla |\omega|_i \]
-        <p>Where the gradient of the magnitude of \(\omega_i\) is approximated as the following (according to a <a href="https://joshua16266261.github.io/184-water-sim/final-report/index.html">past project</a> from this class)
-        </p>
-        <h5>Viscosity</h5>
-        <p>We also wanted to add viscosity as another property of our fluid simulation. This is to simulate the resistance to flow that liquids have. For this part of the simulation loop, we only need t update the velocity as follows:
-        </p>
-        \[\mathbf{v}^{\text{new}}_{i} = \mathbf{v}_i + c \sum_{i} \mathbf{v}_{ij} \cdot W(\mathbf{p}_i - \mathbf{p}_j, h)\]
-        <br>
-        <h4>Freezing Water</h4>
-        <p>The first thing we had to implement was to model solid particles in our simulation, which are supposed to remain stationary throughout the rendering. This also altered how particles collided as collisions between solid and liquid particles behaved
-            differently than just between liquid particles.</p>
-        <p>Following the paper, we then implemented water films for solid particles, which was virtual mass that it receives from neighboring liquid particles. The larger the water film is, the more likely adjacent liquid particles would turn into ice. Next,
-            we computed the growth direction vector for each solid particle, which was the direction ice would grow in if it were to form there. Without this, ice would grow uniformly in all directions and sharp icicles wouldn’t form. We then compute
-            the freezing factor between each solid and liquid particle which essentially takes the dot product between the solid particle’s growth direction vector and the liquid particle’s velocity. So, if the growth direction vector and the liquid particle’s
-            velocity are aligned, there is a higher chance the liquid will crystallize. Lastly, for each solid particle, we iterate through all its neighboring particles, and calculate whether it will turn into ice using the solid particle’s virtual film,
-            the freezing factor of the liquid particle, and the distance between the two particles. </p>
-        <br>
-        <h4>Surface Reconstruction</h4>
-        <h5>Overview</h5>
-        <p>We started off by trying to use open source implementations of surface reconstruction, then trying to reimplement marching cubes, and we finally settled on using metaballs and Blender.</p>
-        <h5>Previous Work</h5>
-        <p>The three main surface reconstruction algorithms that previous teams used were marching cubes, metaballs and OpenVDB. We initially tried using OpenVDB, but we had trouble installing it as they had limited support for Python. So, we tried other
-            methods as described below.</p>
-        <h5>Poisson Surface Reconstruction</h5>
-        <p>We did some research and found that there are many more robust surface reconstruction algorithms today. One of which is the Poisson surface reconstruction algorithm, which learns an implicit function for the surface by solving a Poisson problem.
-            We tested out an open source implementation, but found that the reconstructed surface was sparse, and required a lot of hyperparameter tuning.</p>
-        <div align="middle">
-            <img src="./images/poisson_surface.png" width="300px" border="1px solid black" />
-        </div>
-
-        <h5>Marching Cubes</h5>
-        <p>Since marching cubes was a popular method used by previous teams, we decided to try it out. Whereas prior projects used an estimate for the isovalue like the smallest square distance, we use the more standard estimator - the density of the water
-            within the voxel. We implemented this algorithm in Python, but found that the rendering time took too long, and tuning the hyperparameters was tough.</p>
-        <div align="middle">
-            <img src="./images/marching_cube.png" width="300px" border="1px solid black" />
-        </div>
-
-        <h5>Metaballs</h5>
-        <p>Lastly, we used Blender scripting to generate our meshes and found that this worked well. We modeled each particle as a metaball and we tuned its size and strength - how large each ball is and how much it blends with neighboring balls. We created
-            a modular Python script to automate the rendering of any num_timesteps x num_particles x 4 array, where the 3rd dimension stores the particle’s xyz coordinates and whether it is ice or water. Blender then automatically meshes neighboring metaballs
-            together to create a continuous surface.</p>
-        <div align="middle">
-            <img src="./images/metaball.png" width="300px" border="1px solid black" />
-        </div>
-        <br>
-        <h2>Results</h2>
-        <div align="middle">
-            <div class="container flex justify-content">
-                <table style="width:100%; border-collapse: separate; border-spacing: 0 30px;">
-                    <tr align="center">
-                        <td>
-                            <video controls width=600>
-                            <source src="images/final_video_v4_opticalslow.mp4" type="video/mp4">
-                        </video>
-                            <figcaption>Ice forming on a sphere</figcaption>
-                        </td>
-                    </tr>
-                    <tr align="center">
-                        <td>
-                            <video controls width=600>
-                            <source src="images/final_video_cube_opticalslow.mp4" type="video/mp4">
-                        </video>
-                            <figcaption>Ice forming on a cube</figcaption>
-                        </td>
-                    </tr>
-                    <tr align="center">
-                        <td>
-                            <video controls width=600>
-                            <source src="images/final_video_flat_opticalslow.mp4" type="video/mp4">
-                        </video>
-                            <figcaption>Ice forming on a flat surface</figcaption>
-                        </td>
-                    </tr>
-                </table>
+        <h56>Vorticity Confinement</h6>
+            <p>We also want to apply a vorticity force to make the water simulation more realistic, applying a force to allow for fluid rotation. First, we calculate an estimator \(\omega_i\) as follows:</p>
+            \[ \omega_i = \nabla \times \mathbf{v} = \sum_{j} \mathbf{v}_{ij} \times \nabla_{\mathbf{p}_j} W(\mathbf{p}_i - \mathbf{p}_j, h), \quad \quad \mathbf{v}_{ij} = \mathbf{v}_j - \mathbf{v}_i \]
+            <p>Using this, the force applied to particle \(i\) is as follows:</p>
+            \[\mathbf{f}^{\text{vorticity}}_{i} = \epsilon(\mathbf{N} \times \omega_i), \quad \quad \mathbf{N} = \frac{\eta}{|\eta|}, \quad \quad \eta = \nabla |\omega|_i \]
+            <p>Where the gradient of the magnitude of \(\omega_i\) is approximated as the following (according to a <a href="https://joshua16266261.github.io/184-water-sim/final-report/index.html">past project</a> from this class)
+            </p>
+            <h6>Viscosity</h6>
+            <p>We also wanted to add viscosity as another property of our fluid simulation. This is to simulate the resistance to flow that liquids have. For this part of the simulation loop, we only need t update the velocity as follows:
+            </p>
+            \[\mathbf{v}^{\text{new}}_{i} = \mathbf{v}_i + c \sum_{i} \mathbf{v}_{ij} \cdot W(\mathbf{p}_i - \mathbf{p}_j, h)\]
+            <br>
+            <h5>Freezing Water</h5>
+            <p>The first thing we had to implement was to model solid particles in our simulation, which are supposed to remain stationary throughout the rendering. This also altered how particles collided as collisions between solid and liquid particles
+                behaved differently than just between liquid particles.</p>
+            <p>Following the paper, we then implemented water films for solid particles, which was virtual mass that it receives from neighboring liquid particles. The larger the water film is, the more likely adjacent liquid particles would turn into ice.
+                Next, we computed the growth direction vector for each solid particle, which was the direction ice would grow in if it were to form there. Without this, ice would grow uniformly in all directions and sharp icicles wouldn’t form. We then
+                compute the freezing factor between each solid and liquid particle which essentially takes the dot product between the solid particle’s growth direction vector and the liquid particle’s velocity. So, if the growth direction vector and
+                the liquid particle’s velocity are aligned, there is a higher chance the liquid will crystallize. Lastly, for each solid particle, we iterate through all its neighboring particles, and calculate whether it will turn into ice using the
+                solid particle’s virtual film, the freezing factor of the liquid particle, and the distance between the two particles. </p>
+            <br>
+            <h4>Surface Reconstruction</h4>
+            <h5>Overview</h5>
+            <p>We started off by trying to use open source implementations of surface reconstruction, then trying to reimplement marching cubes, and we finally settled on using metaballs and Blender.</p>
+            <h5>Previous Work</h5>
+            <p>The three main surface reconstruction algorithms that previous teams used were marching cubes, metaballs and OpenVDB. We initially tried using OpenVDB, but we had trouble installing it as they had limited support for Python. So, we tried other
+                methods as described below.</p>
+            <h5>Poisson Surface Reconstruction</h5>
+            <p>We did some research and found that there are many more robust surface reconstruction algorithms today. One of which is the Poisson surface reconstruction algorithm, which learns an implicit function for the surface by solving a Poisson problem.
+                We tested out an open source implementation, but found that the reconstructed surface was sparse, and required a lot of hyperparameter tuning.</p>
+            <div align="middle">
+                <img src="./images/poisson_surface.png" width="200px" border="1px solid black" />
             </div>
-        </div>
-        <br>
-        <h2>Reflection</h2>
-        <p>One of the lessons we learned and a challenge we faced was from converting the point cloud to a mesh. Although the previous projects mostly chose marching cubes and without too much justification, we learned that this choice does not necessarily
-            make the most sense and a lot of developers online believe marching cubes is ill suited for point clouds. We also realized that generating realistic meshes from the point cloud requires a lot of hyperparameter tuning no matter the method –
-            whether that be dictating the isovalue or the size and influence of metaballs. Overall, we figured out that it’s important to figure out why you approach a problem in a specific way, and that although there are a lot of graphics techniques,
-            actually applying them and achieving good results can be non-trivial.</p>
-        <p>For the fluid simulation, most of the implementation went smoothly as the paper that we referenced laid out the steps needed to create the simulation. However, one issue that we had to deal with was difficulty in rendering so many particles. Since
-            we were limited by how fast we could generate our frames, we had to deal with the lack of neighbors for some of the particles. Some issues that this would cause would be divisions by zero when implementing some of the equations, so we needed
-            separate cases as well as adjustments to our code to account for this.</p>
-        <br>
-        <h2>References</h2>
-        <ol>
-            <li><a href="https://drive.google.com/file/d/1Az9bYgnyBDzy27JlxBcpt9tEBCvZhK-A/view?usp=share_link">Visual
+
+            <h5>Marching Cubes</h5>
+            <p>Since marching cubes was a popular method used by previous teams, we decided to try it out. Whereas prior projects used an estimate for the isovalue like the smallest square distance, we use the more standard estimator - the density of the
+                water within the voxel. We implemented this algorithm in Python, but found that the rendering time took too long, and tuning the hyperparameters was tough.</p>
+            <div align="middle">
+                <img src="./images/marching_cube.png" width="200px" border="1px solid black" />
+            </div>
+
+            <h5>Metaballs</h5>
+            <p>Lastly, we used Blender scripting to generate our meshes and found that this worked well. We modeled each particle as a metaball and we tuned its size and strength - how large each ball is and how much it blends with neighboring balls. We
+                created a modular Python script to automate the rendering of any num_timesteps x num_particles x 4 array, where the 3rd dimension stores the particle’s xyz coordinates and whether it is ice or water. Blender then automatically meshes neighboring
+                metaballs together to create a continuous surface.</p>
+            <div align="middle">
+                <img src="./images/metaball.png" width="200px" border="1px solid black" />
+            </div>
+            <br>
+            <h2>Results</h2>
+            <div align="middle">
+                <div class="container flex justify-content">
+                    <table style="width:100%; border-collapse: separate; border-spacing: 0 30px;">
+                        <tr align="center">
+                            <td>
+                                <div align="middle">
+                                    <img src="images/result-sphere.gif" align="middle" width="600px">
+                                </div>
+                                <figcaption>Ice forming on a sphere</figcaption>
+                            </td>
+                        </tr>
+                        <tr align="center">
+                            <td>
+                                <div align="middle">
+                                    <img src="images/result-cube.gif" align="middle" width="600px">
+                                </div>
+                                <figcaption>Ice forming on a cube</figcaption>
+                            </td>
+                        </tr>
+                        <tr align="center">
+                            <td>
+                                <div align="middle">
+                                    <img src="images/result-flat.gif" align="middle" width="600px">
+                                </div>
+                                <figcaption>Ice forming on a flat surface</figcaption>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <br>
+            <h2>Reflection</h2>
+            <p>One of the lessons we learned and a challenge we faced was from converting the point cloud to a mesh. Although the previous projects mostly chose marching cubes and without too much justification, we learned that this choice does not necessarily
+                make the most sense and a lot of developers online believe marching cubes is ill suited for point clouds. We also realized that generating realistic meshes from the point cloud requires a lot of hyperparameter tuning no matter the method
+                – whether that be dictating the isovalue or the size and influence of metaballs. Overall, we figured out that it’s important to figure out why you approach a problem in a specific way, and that although there are a lot of graphics techniques,
+                actually applying them and achieving good results can be non-trivial.</p>
+            <p>For the fluid simulation, most of the implementation went smoothly as the paper that we referenced laid out the steps needed to create the simulation. However, one issue that we had to deal with was difficulty in rendering so many particles.
+                Since we were limited by how fast we could generate our frames, we had to deal with the lack of neighbors for some of the particles. Some issues that this would cause would be divisions by zero when implementing some of the equations,
+                so we needed separate cases as well as adjustments to our code to account for this.</p>
+            <br>
+            <h2>References</h2>
+            <ol>
+                <li><a href="https://drive.google.com/file/d/1Az9bYgnyBDzy27JlxBcpt9tEBCvZhK-A/view?usp=share_link">Visual
                     Simulation of Rapidly Freezing Water Based on Crystallization</a></li>
-            <li><a href="https://drive.google.com/file/d/1xWK60zNIMrumYe5StcMStuXUrnTQIyZw/view?usp=share_link">Versatile
+                <li><a href="https://drive.google.com/file/d/1xWK60zNIMrumYe5StcMStuXUrnTQIyZw/view?usp=share_link">Versatile
                     Surface Tension and Adhesion for SPH Fluids</a></li>
-            <li><a href="https://drive.google.com/file/d/1i0Sx4n7Ky78JfZeJhx-OnpmAOw83s_wF/view?usp=share_link">Position
+                <li><a href="https://drive.google.com/file/d/1i0Sx4n7Ky78JfZeJhx-OnpmAOw83s_wF/view?usp=share_link">Position
                     Based Fluids</a></li>
-            <li><a href="https://www.diva-portal.org/smash/get/diva2:573583/FULLTEXT01.pdf">Poly6 and Spiky Kernel
+                <li><a href="https://www.diva-portal.org/smash/get/diva2:573583/FULLTEXT01.pdf">Poly6 and Spiky Kernel
                     Derivations</a></li>
-            <li><a href="https://cal-cs184-student.github.io/project-webpages-sp23-CardiacMangoes/finalProject/index.html#References">Spring
+                <li><a href="https://cal-cs184-student.github.io/project-webpages-sp23-CardiacMangoes/finalProject/index.html#References">Spring
                     2023 Project - FLIPing Fluids</a></li>
-            <li><a href="https://www.youtube.com/watch?v=APmw2Q8kBOM">Rendering in Blender</a></li>
-            <li><a href="https://www.youtube.com/watch?v=7Z_27_kez9Q">Water texturing in Blender</a></li>
-            <li><a href="https://www.youtube.com/watch?v=qES5WMBXOWo">Ice in Blender</a></li>
-            <li><a href="https://joshua16266261.github.io/184-water-sim/final-report/index.html">Water sim with spray,
-                    foam,
-                    bubbles</a></li>
-            <li><a href="https://drive.google.com/file/d/1Az9bYgnyBDzy27JlxBcpt9tEBCvZhK-A/view?usp=share_link">CUDA
-                    accelerated fluid sim</a></li>
-        </ol>
-        <br>
-        <h2>Video Presentation</h2>
-        <p>This is the same video as linked at the top of the page</p>
-        <div align="middle">
-            <div class="container flex justify-content">
-                <video controls width=1080>
+                <li><a href="https://www.youtube.com/watch?v=APmw2Q8kBOM">Rendering in Blender</a></li>
+                <li><a href="https://www.youtube.com/watch?v=7Z_27_kez9Q">Water Texturing in Blender</a></li>
+                <li><a href="https://www.youtube.com/watch?v=qES5WMBXOWo">Ice in Blender</a></li>
+                <li><a href="https://joshua16266261.github.io/184-water-sim/final-report/index.html">Water Sim with Spray,Foam, Bubbles</a></li>
+                <li><a href="https://drive.google.com/file/d/1Az9bYgnyBDzy27JlxBcpt9tEBCvZhK-A/view?usp=share_link">CUDA
+                    Sccelerated Fluid Sim</a></li>
+            </ol>
+            <br>
+            <h2>Video Presentation</h2>
+            <p>This is the same video as linked at the top of the page.</p>
+            <div align="middle">
+                <div class="container flex justify-content">
+                    <video controls width=800>
                     <source src="images/final_presentation.mp4" type="video/mp4">
                 </video>
+                </div>
             </div>
-        </div>
-        <br>
-        <h2>Contributions</h2>
-        <p><b>Charlie Shou</b>: I worked on setting up the particle simulation code and implementing the base of the simulation loop from the Position Based Fluids paper. This includes applying the forces to each particle, finding the approximate nearest
-            neighbors for each particle (done through position hashing), and performing the calculations for the gradients, forces, and position updates within the solver step. Additionally, I implemented the vorticity and viscosity updates for the particles.
-            For all of the above, I also helped in debugging and tuning the hyperparameters.</p>
-        <p><b>Jin Wei Wong</b>: I mostly worked on implementing the freezing portion of the fluid simulation. This involved implementing ideas from the freezing paper, and making fundamental modifications to the codebase such as modeling solid particles
-            and calculating when a water particle turns into ice. I also helped out with converting our point cloud into metaballs and rendering it in Blender.</p>
-        <p><b>Sebastian Zhao</b>: I worked on the point cloud to mesh portion. I worked with Michael to look into different surface reconstruction algorithms, and tested out a Poisson surface reconstruction algorithm, as well as implementing a Marching Cubes
-            algorithm. I also worked on a blender python script to create metaballs for our particles and tuned the hyperparameters for our final render.</p>
-        <p><b>Michael Wiradharma</b>: I worked with Sebastian on the last two portions of the pipeline, working on restructuring particles into meshes, and figuring out how to realistically render ice and water. I figured out how to import the series of
-            ‘.obj’ files and convert them into blender meshes. Lastly, I replicated the surface textures of water, ice, and metallic solids, and rendered them into the final video.</p>
+            <br>
+            <h2>Contributions</h2>
+            <p><b>Charlie Shou</b>: I worked on setting up the particle simulation code and implementing the base of the simulation loop from the Position Based Fluids paper. This includes applying the forces to each particle, finding the approximate nearest
+                neighbors for each particle (done through position hashing), and performing the calculations for the gradients, forces, and position updates within the solver step. Additionally, I implemented the vorticity and viscosity updates for the
+                particles. For all of the above, I also helped in debugging and tuning the hyperparameters.</p>
+            <p><b>Jin Wei Wong</b>: I mostly worked on implementing the freezing portion of the fluid simulation. This involved implementing ideas from the freezing paper, and making fundamental modifications to the codebase such as modeling solid particles
+                and calculating when a water particle turns into ice. I also helped out with converting our point cloud into metaballs and rendering it in Blender.</p>
+            <p><b>Sebastian Zhao</b>: I worked on the point cloud to mesh portion. I worked with Michael to look into different surface reconstruction algorithms, and tested out a Poisson surface reconstruction algorithm, as well as implementing a Marching
+                Cubes algorithm. I also worked on a blender python script to create metaballs for our particles and tuned the hyperparameters for our final render.</p>
+            <p><b>Michael Wiradharma</b>: I worked with Sebastian on the last two portions of the pipeline, working on restructuring particles into meshes, and figuring out how to realistically render ice and water. I figured out how to import the series
+                of ‘.obj’ files and convert them into blender meshes. Lastly, I replicated the surface textures of water, ice, and metallic solids, and rendered them into the final video.</p>
     </div>
 </body>
 
